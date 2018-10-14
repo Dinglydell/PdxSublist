@@ -25,6 +25,7 @@ namespace PdxFile
 			KeylessSublists = new List<PdxSublist>();
 		}
 
+
 		public void ForEachSublist(Action<KeyValuePair<string, PdxSublist>> callback)
 		{
 			foreach (var sub in sublists)
@@ -39,6 +40,7 @@ namespace PdxFile
 				sub.Value.ForEach(v => callback(new KeyValuePair<string, string>(sub.Key, v)));
 			}
 		}
+
 		public string GetString(string key)
 		{
 			return keyValuePairs[key].Single();
@@ -103,6 +105,19 @@ namespace PdxFile
 			}
 			to[key].Add(value);
 		}
+
+		public static PdxSublist FromList(List<string> strs, PdxSublist parent = null)
+		{
+			var data = new PdxSublist(parent);
+			strs.ForEach((s) =>
+			{
+				data.AddValue(s);
+			}
+			);
+
+			return data;
+		}
+
 		public void AddSublist(string key, PdxSublist value)
 		{
 			if (key == null)
@@ -335,6 +350,11 @@ namespace PdxFile
 
 							key = new StringBuilder();
 							value = new StringBuilder();
+							//todo: do something about the special case
+							if(currentList.Parent == null && firstLine == "CK2txt")
+							{
+								return rootList;
+							}
 							currentList.Parent.AddSublist(currentList.Key, currentList);
 							currentList = currentList.Parent;
 							State = ReadState.preKey;
@@ -401,6 +421,11 @@ namespace PdxFile
 			return rootList;
 		}
 
+		public static object ToPdxDateString(DateTime date)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void AddValue(string v)
 		{
 			AddValue(string.Empty, v);
@@ -445,14 +470,14 @@ namespace PdxFile
 			}
 			var rootList = new PdxSublist(null, filePath);
 			var currentList = rootList;
-			var lineNumber = 0;
+			//var lineNumber = 0;
 			while ((line = file.ReadLine()) != null)
 			{
-				lineNumber++;
-				if (lineNumber == 1513567)
-				{
-					Console.WriteLine("Oh");
-				}
+				//lineNumber++;
+				//if (lineNumber == 1513567)
+				//{
+				//	Console.WriteLine("Oh");
+				//}
 				currentList = RunLine(line, currentList);
 			}
 			if (currentList != rootList)
@@ -747,6 +772,30 @@ namespace PdxFile
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
+		}
+
+		/// <summary>
+		/// Adds an entry, if the key already exists the value appended to the list
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="value"></param>
+		public void Add(TKey key, TValue value)
+		{
+			if (!dictionary.ContainsKey(key))
+			{
+				dictionary[key] = new List<TValue>();
+			}
+			dictionary[key].Add(value);
+		}
+
+		public bool ContainsKey(object type)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Remove(TKey key)
+		{
+			dictionary.Remove(key);
 		}
 	}
 }
