@@ -60,6 +60,11 @@ namespace PdxFile
 			return FloatValues[key].Single();
 		}
 
+        public float GetFloat(string key, float defaultValue)
+        {
+            return FloatValues.ContainsKey(key) ? GetFloat(key) : defaultValue;
+        }
+
 		public PdxSublist GetSublist(string key)
 		{
 			return sublists[key].Single();
@@ -275,10 +280,14 @@ namespace PdxFile
 
 		public static DateTime ParseDate(string dateStr)
 		{
-
 			var dateParts = dateStr.Split('.').Select((p) => int.Parse(p)).ToList();
 			return new DateTime(dateParts[0], dateParts[1], dateParts[2]);
 		}
+
+        public static bool IsDate(string dateStr)
+        {
+            return new Regex(@"^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$").IsMatch(dateStr);
+        }
 
 		public static PdxSublist ReadFile(string filePath, string firstLine = null)
 		{

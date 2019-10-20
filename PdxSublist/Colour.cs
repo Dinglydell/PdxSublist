@@ -19,7 +19,6 @@ namespace PdxUtil
 			Blue = b;
 		}
 
-
 		public Colour(List<float> rgb)
 		{
 
